@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -28,13 +29,12 @@
     }
 
     .illustration {
-      margin: 6px auto 24px; /* ⬅️ increased bottom margin for padding */
+      margin: 6px auto 24px; /* padding between image and headline */
       width: 180px;
       height: 180px;
       position: relative;
       display: grid;
       place-items: center;
-      transition: opacity 180ms ease, max-height 220ms ease, margin 220ms ease;
     }
     .illustration-img {
       max-width: 100%;
@@ -42,14 +42,6 @@
       width: auto;
       height: auto;
       object-fit: contain;
-    }
-
-    /* Hide the landing image after "Yes" is clicked */
-    .card.hide-illustration .illustration {
-      opacity: 0;
-      max-height: 0;
-      margin: 0 auto 0;
-      pointer-events: none;
     }
 
     h1 {
@@ -141,11 +133,12 @@
     }
 
     .success {
-      margin-top: 16px;
+      margin-top: 10px;
+      margin-bottom: 12px;
       font-size: 20px;
-      font-weight: 650;
-      /* on-brand pink (close to the background, but readable on white) */
-      color: #ff6b9b;
+      font-weight: 750;
+      /* on-brand pink similar to the page bg */
+      color: #ff5a8f;
       display: none;
     }
 
@@ -166,8 +159,9 @@
       display: none;
       width: 100%;
       height: auto;
-      max-height: 420px;
-      object-fit: contain;
+      max-height: 420px;     /* prevents giant/tall gifs */
+      max-width: 100%;
+      object-fit: contain;   /* keep gif contained */
       z-index: 1;
       border-radius: 14px;
       box-shadow: 0 12px 28px rgba(0,0,0,0.15);
@@ -178,12 +172,12 @@
 </head>
 
 <body>
-  <div class="card" id="card">
-    <div class="illustration" aria-hidden="true" id="illustration">
+  <div class="card">
+    <div class="illustration" id="illustration" aria-hidden="true">
       <img src="bordercollie.png" alt="" class="illustration-img" />
     </div>
 
-    <h1>lucia will you be my valentine?</h1>
+    <h1 id="headline">lucia will you be my valentine?</h1>
 
     <div class="success" id="successMsg">YAY!! 💘</div>
 
@@ -204,16 +198,39 @@
   </div>
 
   <script>
-    const card = document.getElementById("card");
     const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const successMsg = document.getElementById("successMsg");
     const shyText = document.getElementById("shyText");
     const successGif = document.getElementById("successGif");
+    const illustration = document.getElementById("illustration");
+    const headline = document.getElementById("headline");
+
+    // --- URL param: ?name=...
+    (function applyNameFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get("name");
+
+      // keep lucia as fallback
+      const fallback = "lucia";
+
+      if (!raw) {
+        headline.textContent = `${fallback} will you be my valentine?`;
+        return;
+      }
+
+      // Basic cleanup: trim, collapse spaces, cap length
+      const cleaned = raw
+        .replace(/\+/g, " ")
+        .trim()
+        .replace(/\s+/g, " ")
+        .slice(0, 40);
+
+      headline.textContent = `${(cleaned || fallback)} will you be my valentine?`;
+    })();
 
     const valentineGifs = [
-      // removed: "gifs/littleguy.gif",
       "gifs/penguinarrow.gif",
       "gifs/penguins.gif",
       "gifs/snoopyslaplonger.gif",
@@ -266,8 +283,8 @@
     }, { passive: false });
 
     yesBtn.addEventListener("click", () => {
-      // hide the landing image
-      card.classList.add("hide-illustration");
+      // hide the top image once "Yes" is clicked
+      if (illustration) illustration.style.display = "none";
 
       arena.classList.add("success");
       successMsg.style.display = "block";
@@ -287,3 +304,4 @@
   </script>
 </body>
 </html>
+```
