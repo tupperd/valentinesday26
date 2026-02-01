@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine?</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #ffe0ea;
+    }
+    .card {
+      width: min(520px, 92vw);
+      padding: 28px 22px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .illustration {
+      margin: 6px auto 8px;
+      width: 180px;
+      height: 180px;
+      position: relative;
+    }
+    .illustration-img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -0.02em;
+    }
+    p { margin: 0 0 18px; opacity: 0.75; }
+
+    .arena {
+      position: relative;
+      height: 180px;
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 24px;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+
+    .buttons-group {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      width: 100%;
+      padding: 0 24px;
+    }
+
+    .no-slot {
+      width: 80px;
+      height: 48px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: 18px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active { transform: scale(0.98); }
+
+    #yesBtn {
+      background: #ff3b7a;
+      color: white;
+      box-shadow: 0 12px 28px rgba(255, 59, 122, 0.35);
+      transition: transform 200ms ease, box-shadow 120ms ease;
+    }
+    #yesBtn:hover { box-shadow: 0 16px 34px rgba(255, 59, 122, 0.42); }
+
+    /* Yes button grows as user hovers over No */
+    #yesBtn.yes-size-0 { transform: scale(1); }
+    #yesBtn.yes-size-1 { transform: scale(1.2); }
+    #yesBtn.yes-size-2 { transform: scale(1.4); }
+    #yesBtn.yes-size-3 { transform: scale(1.6); }
+    #yesBtn.yes-size-4 { transform: scale(1.9); }
+
+    /* "No" is positioned absolutely so we can move it */
+    #noBtn {
+      position: absolute;
+      background: #e8e8e8;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      left: 75%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      touch-action: manipulation;
+    }
+
+    .success {
+      margin-top: 16px;
+      font-size: 20px;
+      font-weight: 650;
+      color: #0f7a3a;
+      display: none;
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 250ms ease;
+      z-index: 2;
+    }
+    .confetti.on { opacity: 1; }
+
+    .arena.success .buttons-group,
+    .arena.success #noBtn { display: none; }
+
+    .arena .success-gif-img {
+      display: none;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 1;
+    }
+    .arena.success .success-gif-img { display: block; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="illustration" aria-hidden="true">
+      <img src="bordercollie.png" alt="" class="illustration-img" />
+    </div>
+
+    <h1>lucia will you be my valentine?</h1>
+
+    <div class="arena" id="arena">
+      <div class="buttons-group">
+        <button id="yesBtn">Yes</button>
+        <div class="no-slot" aria-hidden="true"></div>
+      </div>
+      <button id="noBtn" aria-label="No">No</button>
+      <canvas class="confetti" id="confetti"></canvas>
+      <img class="success-gif-img" id="successGif" alt="" />
+    </div>
+
+    <p id="shyText">"No" seems a bit shy 😈</p>
+
+    <div class="success" id="successMsg">YAY!! 💘</div>
+  </div>
+
+  <script>
+    const arena = document.getElementById("arena");
+    const yesBtn = document.getElementById("yesBtn");
+    const successMsg = document.getElementById("successMsg");
+    const shyText = document.getElementById("shyText");
+    const successGif = document.getElementById("successGif");
+  
+    const valentineGifs = [
+      "gifs/littleguy.gif",
+      "gifs/penguinarrow.gif",
+      "gifs/penguins.gif",
+      "gifs/snoopyslaplonger.gif",
+      "gifs/snoopyvalentinesday.gif"
+    ];
+  
+    const FALLBACK_GIF = "data:image/gif;base64,R0lGODlh..."; // keep yours
+  
+    function pickGif() {
+      return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
+    }
+  
+    yesBtn.addEventListener("click", () => {
+      // Make the arena switch into the "success" state so the GIF can display
+      arena.classList.add("success");
+      successMsg.style.display = "block";
+      shyText.style.display = "none";
+  
+      const chosen = pickGif();
+  
+      // If the chosen GIF fails, fall back
+      successGif.onerror = () => {
+        successGif.onerror = null; // prevent infinite loop if fallback somehow fails
+        successGif.src = FALLBACK_GIF;
+      };
+  
+      // Set src AFTER wiring onerror
+      successGif.src = chosen;
+    });
+  </script>
+  
+</body>
+</html>
