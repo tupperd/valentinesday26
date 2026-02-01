@@ -6,6 +6,7 @@
   <title>Valentine?</title>
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -13,6 +14,7 @@
       place-items: center;
       background: #ffe0ea;
     }
+
     .card {
       width: min(520px, 92vw);
       padding: 28px 22px;
@@ -24,163 +26,149 @@
       overflow: hidden;
     }
 
-    .illustration {
-      margin: 6px auto 8px;
-      width: 180px;
-      height: 180px;
-      position: relative;
-    }
-    .illustration-img {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-    }
     h1 {
       margin: 0 0 14px;
-      font-size: clamp(26px, 4vw, 36px);
-      letter-spacing: -0.02em;
+      font-size: 28px;
     }
-    p { margin: 0 0 18px; opacity: 0.75; }
 
-    .arena {
+    p {
+      margin: 0 0 18px;
+      color: #444;
+    }
+
+    /* Arena is the box the buttons move inside */
+    #arena {
       position: relative;
-      height: 180px;
+      height: 160px;
+      border-radius: 14px;
+      background: #fff4f8;
+      border: 1px solid rgba(0,0,0,0.06);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      margin-top: 12px;
+    }
+
+    /* 3-column layout so Yes/No are evenly spaced across the arena */
+    .btn-row {
       width: 100%;
-      box-sizing: border-box;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      pointer-events: none; /* ensures the row itself doesn't block the No button after it goes absolute */
+    }
+
+    .btn-row .slot-left,
+    .btn-row .slot-right {
       display: flex;
+      align-items: center;
       justify-content: center;
-      align-items: center;
-      margin-bottom: 24px;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
+      pointer-events: none;
     }
 
-    .buttons-group {
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      width: 100%;
-      padding: 0 24px;
-    }
-
-    .no-slot {
-      width: 80px;
-      height: 48px;
+    .btn-row .slot-middle {
+      height: 1px;
+      pointer-events: none;
     }
 
     button {
-      border: none;
+      appearance: none;
+      border: 0;
       border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 18px;
-      font-weight: 650;
+      padding: 12px 18px;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 120ms ease, box-shadow 120ms ease;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+      transition: transform 160ms ease;
+      pointer-events: auto; /* buttons remain clickable */
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    button:active { transform: scale(0.98); }
 
     #yesBtn {
-      background: #ff3b7a;
-      color: white;
-      box-shadow: 0 12px 28px rgba(255, 59, 122, 0.35);
-      transition: transform 200ms ease, box-shadow 120ms ease;
+      background: #ff4d7d;
+      color: #fff;
+      transform-origin: center;
     }
-    #yesBtn:hover { box-shadow: 0 16px 34px rgba(255, 59, 122, 0.42); }
 
-    /* Yes button grows as user hovers over No */
-    #yesBtn.yes-size-0 { transform: scale(1); }
-    #yesBtn.yes-size-1 { transform: scale(1.2); }
-    #yesBtn.yes-size-2 { transform: scale(1.4); }
-    #yesBtn.yes-size-3 { transform: scale(1.6); }
-    #yesBtn.yes-size-4 { transform: scale(1.9); }
-
-    /* "No" is positioned absolutely so we can move it */
     #noBtn {
-      position: absolute;
-      background: #e8e8e8;
-      color: #333;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      left: 75%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      touch-action: manipulation;
+      background: #f2f2f2;
+      color: #222;
     }
 
-    .success {
+    /* Success state */
+    #successMsg {
+      display: none;
       margin-top: 16px;
-      font-size: 20px;
-      font-weight: 650;
-      color: #0f7a3a;
+    }
+
+    #successGif {
+      max-width: 240px;
+      width: 70%;
+      height: auto;
+      border-radius: 14px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+      margin-top: 10px;
+    }
+
+    .success #arena {
+      height: auto;
+      padding: 18px 16px;
+    }
+
+    .success .btn-row {
       display: none;
     }
 
-    .confetti {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 250ms ease;
-      z-index: 2;
+    #shyText {
+      margin-top: 10px;
+      color: #666;
+      font-size: 14px;
     }
-    .confetti.on { opacity: 1; }
-
-    .arena.success .buttons-group,
-    .arena.success #noBtn { display: none; }
-
-    .arena .success-gif-img {
-      display: none;
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      z-index: 1;
-    }
-    .arena.success .success-gif-img { display: block; }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <div class="illustration" aria-hidden="true">
-      <img src="bordercollie.png" alt="" class="illustration-img" />
-    </div>
+    <h1>Will you be my Valentine? 💘</h1>
+    <p id="shyText">Be honest… you can’t say no 😇</p>
 
-    <h1>lucia will you be my valentine?</h1>
-
-    <div class="arena" id="arena">
-      <div class="buttons-group">
-        <button id="yesBtn">Yes</button>
-        <div class="no-slot" aria-hidden="true"></div>
+    <div id="arena">
+      <!-- Evenly spaced, vertically aligned starting layout -->
+      <div class="btn-row" id="btnRow">
+        <div class="slot-left">
+          <button id="yesBtn" type="button">Yes</button>
+        </div>
+        <div class="slot-middle"></div>
+        <div class="slot-right">
+          <button id="noBtn" type="button">No</button>
+        </div>
       </div>
-      <button id="noBtn" aria-label="No">No</button>
-      <canvas class="confetti" id="confetti"></canvas>
-      <img class="success-gif-img" id="successGif" alt="" />
+
+      <div id="successMsg">
+        <div style="font-weight:800; font-size:18px;">YAY!!! 🥰</div>
+        <img id="successGif" alt="Happy valentine gif" />
+      </div>
     </div>
-
-    <p id="shyText">"No" seems a bit shy 😈</p>
-
-    <div class="success" id="successMsg">YAY!! 💘</div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const arena = document.getElementById("arena");
+      const btnRow = document.getElementById("btnRow");
       const yesBtn = document.getElementById("yesBtn");
       const noBtn = document.getElementById("noBtn");
       const successMsg = document.getElementById("successMsg");
       const shyText = document.getElementById("shyText");
       const successGif = document.getElementById("successGif");
-    
-      if (!arena || !yesBtn || !noBtn || !successMsg || !shyText || !successGif) {
+
+      if (!arena || !btnRow || !yesBtn || !noBtn || !successMsg || !shyText || !successGif) {
         console.error("Missing one or more required elements. Check your IDs in the HTML.");
         return;
       }
-    
+
+      // --- GIF rotation on YES ---
       const valentineGifs = [
         "gifs/littleguy.gif",
         "gifs/penguinarrow.gif",
@@ -188,64 +176,119 @@
         "gifs/snoopyslaplonger.gif",
         "gifs/snoopyvalentinesday.gif"
       ];
-    
+
       const FALLBACK_GIF = "data:image/gif;base64,R0lGODlh..."; // keep yours
-    
+
       function pickGif() {
         return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
       }
-    
-      // Ensure the arena can be used as a positioning box
-      arena.style.position = arena.style.position || "relative";
-    
-      // Ensure the No button can move
-      noBtn.style.position = "absolute";
-    
-      function moveNoButton() {
-        const pad = 10;
-    
-        const arenaRect = arena.getBoundingClientRect();
-        const btnRect = noBtn.getBoundingClientRect();
-    
-        const maxX = Math.max(pad, arenaRect.width - btnRect.width - pad);
-        const maxY = Math.max(pad, arenaRect.height - btnRect.height - pad);
-    
-        const x = Math.random() * maxX;
-        const y = Math.random() * maxY;
-    
-        noBtn.style.left = `${x}px`;
-        noBtn.style.top = `${y}px`;
-      }
-    
-      // Desktop + mobile triggers
-      noBtn.addEventListener("mouseenter", moveNoButton);
-      noBtn.addEventListener("mouseover", moveNoButton);
-      noBtn.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        moveNoButton();
-      }, { passive: false });
-    
-      // Your existing YES behavior
+
       yesBtn.addEventListener("click", () => {
         arena.classList.add("success");
         successMsg.style.display = "block";
         shyText.style.display = "none";
-    
+
         const chosen = pickGif();
-    
+
         successGif.onerror = () => {
           successGif.onerror = null;
           successGif.src = FALLBACK_GIF;
         };
-    
+
         successGif.src = chosen;
       });
-    
-      // Optional: start No somewhere random at load
-      moveNoButton();
+
+      // --- NO button movement ---
+      // Start position: aligned via layout (grid). Once we move it, we switch to absolute.
+      let noIsAbsolute = false;
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function moveNoButton() {
+        // Make "No" absolutely positioned inside the arena AFTER the first dodge
+        if (!noIsAbsolute) {
+          const arenaRect = arena.getBoundingClientRect();
+          const noRect = noBtn.getBoundingClientRect();
+
+          // Convert its current on-screen position into arena-relative coordinates
+          const startLeft = noRect.left - arenaRect.left;
+          const startTop = noRect.top - arenaRect.top;
+
+          noBtn.style.position = "absolute";
+          noBtn.style.left = `${startLeft}px`;
+          noBtn.style.top = `${startTop}px`;
+          noIsAbsolute = true;
+        }
+
+        const pad = 10;
+        const arenaRect = arena.getBoundingClientRect();
+        const btnRect = noBtn.getBoundingClientRect();
+
+        // Usable movement space
+        const maxX = Math.max(pad, arenaRect.width - btnRect.width - pad);
+        const maxY = Math.max(pad, arenaRect.height - btnRect.height - pad);
+
+        const x = Math.random() * (maxX - pad) + pad;
+        const y = Math.random() * (maxY - pad) + pad;
+
+        noBtn.style.left = `${clamp(x, pad, maxX)}px`;
+        noBtn.style.top = `${clamp(y, pad, maxY)}px`;
+      }
+
+      // --- YES button grows when you "scroll over" / hover over NO ---
+      // We'll count "attempts" on:
+      // - mouseenter (desktop)
+      // - wheel over the No button (trackpad scroll / mouse wheel)
+      // - touchstart (mobile)
+      let noInteractions = 0;
+      const scales = [1, 1.25, 1.5, 1.75, 2.0];
+
+      function applyYesScale() {
+        const idx = Math.min(noInteractions, 4);
+        yesBtn.style.transform = `scale(${scales[idx]})`;
+      }
+
+      function bumpInteractionCount() {
+        if (noInteractions < 4) {
+          noInteractions += 1;
+          applyYesScale();
+        }
+      }
+
+      // Hover attempt: grows YES + dodges NO
+      noBtn.addEventListener("mouseenter", () => {
+        bumpInteractionCount();
+        moveNoButton();
+      });
+
+      // Extra insurance if mouseover fires differently in some browsers
+      noBtn.addEventListener("mouseover", () => {
+        // Only count if mouse is actually entering (not moving within button)
+        // We'll avoid double counting by checking relatedTarget
+        // If relatedTarget is inside the button, ignore.
+        // (Some browsers fire mouseover repeatedly.)
+      });
+
+      // Scroll/trackpad wheel while over NO: grows YES + dodges NO
+      noBtn.addEventListener("wheel", (e) => {
+        e.preventDefault(); // keeps the page from scrolling
+        bumpInteractionCount();
+        moveNoButton();
+      }, { passive: false });
+
+      // Mobile: touch attempt: grows YES + dodges NO
+      noBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        bumpInteractionCount();
+        moveNoButton();
+      }, { passive: false });
+
+      // Initial: YES/NO are aligned by the grid, so we do NOT randomize at load.
+      // Also ensure initial YES scale is 1.
+      applyYesScale();
     });
-    </script>
-    
-  
+  </script>
 </body>
 </html>
