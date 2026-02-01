@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Valentine?</title>
-
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
@@ -14,26 +13,27 @@
       display: grid;
       place-items: center;
       background: #ffe0ea;
+      padding: 16px 0; /* helps on small screens */
+      box-sizing: border-box;
     }
 
     .card {
       width: min(520px, 92vw);
-      padding: 18px 22px;
+      padding: 22px 22px 26px; /* reduced top spacing a bit */
       border-radius: 18px;
       background: #fff;
       box-shadow: 0 18px 45px rgba(0,0,0,0.12);
       text-align: center;
       position: relative;
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     .illustration {
-      margin: 6px auto 22px; /* ⬅️ increased bottom margin for padding */
+      margin: 6px auto 8px;
       width: 180px;
       height: 180px;
       position: relative;
-      display: grid;
-      place-items: center;
     }
     .illustration-img {
       max-width: 100%;
@@ -41,10 +41,13 @@
       width: auto;
       height: auto;
       object-fit: contain;
+      display: block;
+      margin: 0 auto;
     }
 
     h1 {
       margin: 0 0 14px;
+      padding-top: 10px; /* <-- padding between bordercollie.png and headline */
       font-size: clamp(26px, 4vw, 36px);
       letter-spacing: -0.02em;
     }
@@ -53,30 +56,18 @@
 
     .arena {
       position: relative;
-      height: 180px;
       width: 100%;
       box-sizing: border-box;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 24px;
-
+      margin-bottom: 14px;
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
 
-      border-radius: 14px;
-      background-color: #fff4f8;
-      border: 1px solid rgba(0,0,0,0.06);
-      overflow: hidden;
-
-      transition: height 220ms ease, padding 220ms ease;
-    }
-
-    .arena.success {
-      height: auto;
-      padding: 18px 16px;
-      display: block;
+      /* Default (buttons) size */
+      height: 180px;
     }
 
     .buttons-group {
@@ -85,6 +76,7 @@
       align-items: center;
       width: 100%;
       padding: 0 24px;
+      box-sizing: border-box;
     }
 
     .no-slot {
@@ -114,12 +106,14 @@
     }
     #yesBtn:hover { box-shadow: 0 16px 34px rgba(255, 59, 122, 0.42); }
 
+    /* Yes button grows as user hovers over No (locked after 4) */
     #yesBtn.yes-size-0 { transform: scale(1); }
     #yesBtn.yes-size-1 { transform: scale(1.25); }
     #yesBtn.yes-size-2 { transform: scale(1.5); }
     #yesBtn.yes-size-3 { transform: scale(1.75); }
     #yesBtn.yes-size-4 { transform: scale(2.0); }
 
+    /* "No" is positioned absolutely so we can move it */
     #noBtn {
       position: absolute;
       background: #e8e8e8;
@@ -129,44 +123,52 @@
       top: 50%;
       transform: translate(-50%, -50%);
       touch-action: manipulation;
+      will-change: left, top;
+    }
+
+    /* Success content lives inside arena, above the GIF */
+    .success-content {
+      display: none;
+      width: 100%;
+      padding: 10px 0 0;
+      box-sizing: border-box;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
     }
 
     .success {
-      margin-top: 16px;
       font-size: 20px;
       font-weight: 650;
       color: #0f7a3a;
-      display: none;
+      display: none; /* toggled by JS */
     }
 
-    .confetti {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 250ms ease;
-      z-index: 2;
+    /* When success, let the arena grow with the GIF */
+    .arena.success {
+      height: auto;             /* <-- key: box resizes */
+      min-height: 220px;
+      padding: 12px 0 6px;
     }
-    .confetti.on { opacity: 1; }
 
     .arena.success .buttons-group,
     .arena.success #noBtn { display: none; }
 
+    .arena.success .success-content { display: flex; }
+
     .arena .success-gif-img {
-      display: none;
       width: 100%;
       height: auto;
-      max-height: 420px;
       object-fit: contain;
-      z-index: 1;
-      border-radius: 14px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-      margin: 0 auto;
+
+      /* <-- key: keep GIF from exceeding the screen/card */
+      max-width: min(92vw, 460px);
+      max-height: min(55vh, 420px);
+      display: block;
     }
-    .arena.success .success-gif-img { display: block; }
   </style>
 </head>
-
 <body>
   <div class="card">
     <div class="illustration" aria-hidden="true">
@@ -176,27 +178,29 @@
     <h1>lucia will you be my valentine?</h1>
 
     <div class="arena" id="arena">
-      <div class="buttons-group">
+      <div class="buttons-group" id="buttonsGroup">
         <button id="yesBtn" class="yes-size-0">Yes</button>
-        <div class="no-slot" aria-hidden="true"></div>
+        <div class="no-slot" id="noSlot" aria-hidden="true"></div>
       </div>
 
       <button id="noBtn" aria-label="No">No</button>
 
-      <canvas class="confetti" id="confetti"></canvas>
-
-      <img class="success-gif-img" id="successGif" alt="Valentine gif" />
+      <!-- Success state (message above GIF) -->
+      <div class="success-content" id="successContent">
+        <div class="success" id="successMsg">YAY!! 💘</div>
+        <img class="success-gif-img" id="successGif" alt="" />
+      </div>
     </div>
 
     <p id="shyText">"No" seems a bit shy 😈</p>
-
-    <div class="success" id="successMsg">YAY!! 💘</div>
   </div>
 
   <script>
     const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
+    const noSlot = document.getElementById("noSlot");
+
     const successMsg = document.getElementById("successMsg");
     const shyText = document.getElementById("shyText");
     const successGif = document.getElementById("successGif");
@@ -215,45 +219,85 @@
       return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
     }
 
-    let interactions = 0;
+    // --- Positioning helpers (start No aligned with the placeholder slot) ---
+    function setNoPosition(cx, cy) {
+      noBtn.style.left = cx + "px";
+      noBtn.style.top = cy + "px";
+    }
+
+    function positionNoAtSlot() {
+      // If success state, don't bother.
+      if (arena.classList.contains("success")) return;
+
+      const arenaRect = arena.getBoundingClientRect();
+      const slotRect = noSlot.getBoundingClientRect();
+
+      const cx = (slotRect.left - arenaRect.left) + (slotRect.width / 2);
+      const cy = (slotRect.top - arenaRect.top) + (slotRect.height / 2);
+
+      setNoPosition(cx, cy);
+    }
+
+    // Move "No" within arena bounds
+    function moveNoRandom() {
+      if (arena.classList.contains("success")) return;
+
+      const pad = 10;
+      const aW = arena.clientWidth;
+      const aH = arena.clientHeight;
+
+      const bW = noBtn.offsetWidth;
+      const bH = noBtn.offsetHeight;
+
+      const minX = (bW / 2) + pad;
+      const maxX = aW - (bW / 2) - pad;
+
+      const minY = (bH / 2) + pad;
+      const maxY = aH - (bH / 2) - pad;
+
+      // If arena is too small, just pin to center-ish.
+      if (maxX <= minX || maxY <= minY) {
+        setNoPosition(aW * 0.7, aH * 0.55);
+        return;
+      }
+
+      const x = Math.random() * (maxX - minX) + minX;
+      const y = Math.random() * (maxY - minY) + minY;
+
+      setNoPosition(x, y);
+    }
+
+    // --- Yes grows after each hover over No (caps at 4) ---
+    let noHoverCount = 0;
+
     function updateYesSize() {
-      const capped = Math.min(interactions, 4);
-      yesBtn.classList.remove("yes-size-0","yes-size-1","yes-size-2","yes-size-3","yes-size-4");
+      const capped = Math.min(noHoverCount, 4);
+      for (let i = 0; i <= 4; i++) yesBtn.classList.remove(`yes-size-${i}`);
       yesBtn.classList.add(`yes-size-${capped}`);
     }
 
-    function moveNo() {
-      const a = arena.getBoundingClientRect();
-      const b = noBtn.getBoundingClientRect();
-      const pad = 10;
+    function handleNoHover() {
+      if (arena.classList.contains("success")) return;
 
-      const maxX = a.width - b.width - pad * 2;
-      const maxY = a.height - b.height - pad * 2;
-
-      const x = Math.random() * Math.max(0, maxX) + pad;
-      const y = Math.random() * Math.max(0, maxY) + pad;
-
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
-      noBtn.style.transform = `translate(0,0)`;
+      if (noHoverCount < 4) {
+        noHoverCount += 1;
+        updateYesSize();
+      }
+      moveNoRandom();
     }
 
-    function interactWithNo() {
-      if (interactions < 4) interactions++;
-      updateYesSize();
-      moveNo();
-    }
+    // Use pointerenter for mouse + pen; add mouseenter as fallback
+    noBtn.addEventListener("pointerenter", handleNoHover);
+    noBtn.addEventListener("mouseenter", handleNoHover);
 
-    noBtn.addEventListener("mouseenter", interactWithNo);
-    noBtn.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      interactWithNo();
-    }, { passive: false });
+    // On touch, move it when they try to tap it
     noBtn.addEventListener("touchstart", (e) => {
+      if (arena.classList.contains("success")) return;
       e.preventDefault();
-      interactWithNo();
+      handleNoHover();
     }, { passive: false });
 
+    // --- Success click ---
     yesBtn.addEventListener("click", () => {
       arena.classList.add("success");
       successMsg.style.display = "block";
@@ -269,7 +313,15 @@
       successGif.src = chosen;
     });
 
-    updateYesSize();
+    // Initial alignment and responsive recalcs
+    window.addEventListener("load", () => {
+      positionNoAtSlot();
+      updateYesSize();
+    });
+
+    window.addEventListener("resize", () => {
+      positionNoAtSlot();
+    });
   </script>
 </body>
 </html>
