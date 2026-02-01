@@ -168,44 +168,84 @@
   </div>
 
   <script>
-    const arena = document.getElementById("arena");
-    const yesBtn = document.getElementById("yesBtn");
-    const successMsg = document.getElementById("successMsg");
-    const shyText = document.getElementById("shyText");
-    const successGif = document.getElementById("successGif");
-  
-    const valentineGifs = [
-      "gifs/littleguy.gif",
-      "gifs/penguinarrow.gif",
-      "gifs/penguins.gif",
-      "gifs/snoopyslaplonger.gif",
-      "gifs/snoopyvalentinesday.gif"
-    ];
-  
-    const FALLBACK_GIF = "data:image/gif;base64,R0lGODlh..."; // keep yours
-  
-    function pickGif() {
-      return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
-    }
-  
-    yesBtn.addEventListener("click", () => {
-      // Make the arena switch into the "success" state so the GIF can display
-      arena.classList.add("success");
-      successMsg.style.display = "block";
-      shyText.style.display = "none";
-  
-      const chosen = pickGif();
-  
-      // If the chosen GIF fails, fall back
-      successGif.onerror = () => {
-        successGif.onerror = null; // prevent infinite loop if fallback somehow fails
-        successGif.src = FALLBACK_GIF;
-      };
-  
-      // Set src AFTER wiring onerror
-      successGif.src = chosen;
+    document.addEventListener("DOMContentLoaded", () => {
+      const arena = document.getElementById("arena");
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      const successMsg = document.getElementById("successMsg");
+      const shyText = document.getElementById("shyText");
+      const successGif = document.getElementById("successGif");
+    
+      if (!arena || !yesBtn || !noBtn || !successMsg || !shyText || !successGif) {
+        console.error("Missing one or more required elements. Check your IDs in the HTML.");
+        return;
+      }
+    
+      const valentineGifs = [
+        "gifs/littleguy.gif",
+        "gifs/penguinarrow.gif",
+        "gifs/penguins.gif",
+        "gifs/snoopyslaplonger.gif",
+        "gifs/snoopyvalentinesday.gif"
+      ];
+    
+      const FALLBACK_GIF = "data:image/gif;base64,R0lGODlh..."; // keep yours
+    
+      function pickGif() {
+        return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
+      }
+    
+      // Ensure the arena can be used as a positioning box
+      arena.style.position = arena.style.position || "relative";
+    
+      // Ensure the No button can move
+      noBtn.style.position = "absolute";
+    
+      function moveNoButton() {
+        const pad = 10;
+    
+        const arenaRect = arena.getBoundingClientRect();
+        const btnRect = noBtn.getBoundingClientRect();
+    
+        const maxX = Math.max(pad, arenaRect.width - btnRect.width - pad);
+        const maxY = Math.max(pad, arenaRect.height - btnRect.height - pad);
+    
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+    
+        noBtn.style.left = `${x}px`;
+        noBtn.style.top = `${y}px`;
+      }
+    
+      // Desktop + mobile triggers
+      noBtn.addEventListener("mouseenter", moveNoButton);
+      noBtn.addEventListener("mouseover", moveNoButton);
+      noBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        moveNoButton();
+      }, { passive: false });
+    
+      // Your existing YES behavior
+      yesBtn.addEventListener("click", () => {
+        arena.classList.add("success");
+        successMsg.style.display = "block";
+        shyText.style.display = "none";
+    
+        const chosen = pickGif();
+    
+        successGif.onerror = () => {
+          successGif.onerror = null;
+          successGif.src = FALLBACK_GIF;
+        };
+    
+        successGif.src = chosen;
+      });
+    
+      // Optional: start No somewhere random at load
+      moveNoButton();
     });
-  </script>
+    </script>
+    
   
 </body>
 </html>
