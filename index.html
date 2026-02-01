@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -159,9 +158,9 @@
       display: none;
       width: 100%;
       height: auto;
-      max-height: 420px;     /* prevents giant/tall gifs */
+      max-height: 420px;
       max-width: 100%;
-      object-fit: contain;   /* keep gif contained */
+      object-fit: contain;
       z-index: 1;
       border-radius: 14px;
       box-shadow: 0 12px 28px rgba(0,0,0,0.15);
@@ -207,12 +206,12 @@
     const illustration = document.getElementById("illustration");
     const headline = document.getElementById("headline");
 
-    // --- URL param: ?name=...
-    (function applyNameFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get("name");
+    // --- URL params: ?name=...&gif=...
+    const params = new URLSearchParams(window.location.search);
 
-      // keep lucia as fallback
+    // NAME param (fallback: lucia)
+    (function applyNameFromUrl() {
+      const raw = params.get("name");
       const fallback = "lucia";
 
       if (!raw) {
@@ -220,7 +219,6 @@
         return;
       }
 
-      // Basic cleanup: trim, collapse spaces, cap length
       const cleaned = raw
         .replace(/\+/g, " ")
         .trim()
@@ -230,16 +228,25 @@
       headline.textContent = `${(cleaned || fallback)} will you be my valentine?`;
     })();
 
-    const valentineGifs = [
-      "gifs/penguinarrow.gif",
-      "gifs/penguins.gif",
-      "gifs/snoopyslaplonger.gif",
-      "gifs/snoopyvalentinesday.gif"
-    ];
+    // GIF param mapping:
+    // 1 -> penguinarrow.gif
+    // 2 -> penguins.gif
+    // 3 -> snoopyslaplonger.gif
+    // 4 -> snoopyvalentinesday.gif
+    const gifMap = {
+      "1": "gifs/penguinarrow.gif",
+      "2": "gifs/penguins.gif",
+      "3": "gifs/snoopyslaplonger.gif",
+      "4": "gifs/snoopyvalentinesday.gif"
+    };
+
+    const valentineGifs = Object.values(gifMap);
 
     const FALLBACK_GIF = "data:image/gif;base64,R0lGODlh..."; // keep yours
 
     function pickGif() {
+      const requested = params.get("gif");
+      if (requested && gifMap[requested]) return gifMap[requested];
       return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
     }
 
@@ -304,4 +311,3 @@
   </script>
 </body>
 </html>
-```
