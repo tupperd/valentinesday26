@@ -34,6 +34,7 @@
       position: relative;
       display: grid;
       place-items: center;
+      transition: opacity 180ms ease, max-height 220ms ease, margin 220ms ease;
     }
     .illustration-img {
       max-width: 100%;
@@ -41,6 +42,14 @@
       width: auto;
       height: auto;
       object-fit: contain;
+    }
+
+    /* Hide the landing image after "Yes" is clicked */
+    .card.hide-illustration .illustration {
+      opacity: 0;
+      max-height: 0;
+      margin: 0 auto 0;
+      pointer-events: none;
     }
 
     h1 {
@@ -135,7 +144,8 @@
       margin-top: 16px;
       font-size: 20px;
       font-weight: 650;
-      color: #0f7a3a;
+      /* on-brand pink (close to the background, but readable on white) */
+      color: #ff6b9b;
       display: none;
     }
 
@@ -168,8 +178,8 @@
 </head>
 
 <body>
-  <div class="card">
-    <div class="illustration" aria-hidden="true">
+  <div class="card" id="card">
+    <div class="illustration" aria-hidden="true" id="illustration">
       <img src="bordercollie.png" alt="" class="illustration-img" />
     </div>
 
@@ -194,6 +204,7 @@
   </div>
 
   <script>
+    const card = document.getElementById("card");
     const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
@@ -202,7 +213,7 @@
     const successGif = document.getElementById("successGif");
 
     const valentineGifs = [
-      "gifs/littleguy.gif",
+      // removed: "gifs/littleguy.gif",
       "gifs/penguinarrow.gif",
       "gifs/penguins.gif",
       "gifs/snoopyslaplonger.gif",
@@ -255,6 +266,9 @@
     }, { passive: false });
 
     yesBtn.addEventListener("click", () => {
+      // hide the landing image
+      card.classList.add("hide-illustration");
+
       arena.classList.add("success");
       successMsg.style.display = "block";
       shyText.style.display = "none";
