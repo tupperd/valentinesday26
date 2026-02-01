@@ -27,9 +27,8 @@
       overflow: hidden;
     }
 
-    /* Landing image style (matches your reference) */
     .illustration {
-      margin: 6px auto 8px;
+      margin: 6px auto 14px; /* ⬅️ increased bottom margin for padding */
       width: 180px;
       height: 180px;
       position: relative;
@@ -52,7 +51,6 @@
 
     p { margin: 0 0 18px; opacity: 0.75; }
 
-    /* Arena: interactive state fixed-height; success state becomes content-sized */
     .arena {
       position: relative;
       height: 180px;
@@ -75,7 +73,6 @@
       transition: height 220ms ease, padding 220ms ease;
     }
 
-    /* When success triggers: let arena grow with content */
     .arena.success {
       height: auto;
       padding: 18px 16px;
@@ -95,7 +92,6 @@
       height: 48px;
     }
 
-    /* Button style (matches your reference) */
     button {
       border: none;
       border-radius: 999px;
@@ -118,14 +114,12 @@
     }
     #yesBtn:hover { box-shadow: 0 16px 34px rgba(255, 59, 122, 0.42); }
 
-    /* Yes button grows as user hovers/scrolls over No */
     #yesBtn.yes-size-0 { transform: scale(1); }
     #yesBtn.yes-size-1 { transform: scale(1.25); }
     #yesBtn.yes-size-2 { transform: scale(1.5); }
     #yesBtn.yes-size-3 { transform: scale(1.75); }
     #yesBtn.yes-size-4 { transform: scale(2.0); }
 
-    /* No is positioned absolutely for movement */
     #noBtn {
       position: absolute;
       background: #e8e8e8;
@@ -221,7 +215,6 @@
       return valentineGifs[Math.floor(Math.random() * valentineGifs.length)];
     }
 
-    // Growth logic: cap after 4 interactions
     let interactions = 0;
     function updateYesSize() {
       const capped = Math.min(interactions, 4);
@@ -229,7 +222,6 @@
       yesBtn.classList.add(`yes-size-${capped}`);
     }
 
-    // Movement logic: keep No inside arena bounds
     function moveNo() {
       const a = arena.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
@@ -241,7 +233,6 @@
       const x = Math.random() * Math.max(0, maxX) + pad;
       const y = Math.random() * Math.max(0, maxY) + pad;
 
-      // Ensure absolute positioning is relative to arena box
       noBtn.style.left = `${x}px`;
       noBtn.style.top = `${y}px`;
       noBtn.style.transform = `translate(0,0)`;
@@ -278,7 +269,6 @@
       successGif.src = chosen;
     });
 
-    // init
     updateYesSize();
   </script>
 </body>
