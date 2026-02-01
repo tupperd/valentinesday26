@@ -7,6 +7,8 @@ It shows a cute landing card with Yes / No buttons:
 - Clicking “Yes” swaps the UI into a “success” state and shows a GIF from /gifs/.
 - You can optionally control the displayed name (and which gif appears) via URL parameters.
 
+Try it here: https://tupperd.github.io/valentinesday26/
+
 # URL parameters
 ```name```
 
